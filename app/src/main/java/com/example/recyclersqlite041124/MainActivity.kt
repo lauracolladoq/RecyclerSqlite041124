@@ -2,9 +2,12 @@ package com.example.recyclersqlite041124
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
         setListeners()
         setRecycler()
+        title = "Mi agenda"
     }
 
     private fun traerRegistros() {
@@ -47,8 +51,16 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = layoutManager
         traerRegistros()
         //adapter = ContactoAdapter(lista)
-        adapter = ContactoAdapter(lista, { position -> borrarContacto(position) })
+        adapter =
+            ContactoAdapter(lista, { position -> borrarContacto(position) }, { c -> update(c) })
         binding.recyclerView.adapter = adapter
+    }
+
+    private fun update(c: ContactoModel) {
+        val i = Intent(this, AddActivity::class.java).apply {
+            putExtra("CONTACTO", c)
+        }
+        startActivity(i)
     }
 
     private fun borrarContacto(p: Int) {
@@ -74,5 +86,36 @@ class MainActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         setRecycler()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_principal, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.item_salir -> {
+                finish()
+            }
+
+            R.id.item_borrar_todo -> {
+                confirmarBorrado()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun confirmarBorrado() {
+        val builder = AlertDialog.Builder(this).setTitle("¿Borrar Agenda?").setMessage(
+            "¿Borrar todos los contactos?"
+        ).setNegativeButton("CANCELAR")
+        // Cuando en una funcion lambda espera dos parámetros pero estos son opcionales se pone _
+        { dialog, _ ->
+            dialog.dismiss()
+        }.setPositiveButton("ACEPTAR") { _, _ ->
+            CrudContactos().borrarTodo()
+            setRecycler()
+        }.create().show()
     }
 }

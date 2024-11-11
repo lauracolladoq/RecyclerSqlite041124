@@ -64,6 +64,30 @@ class CrudContactos {
         return contactoBorrado > 0
     }
 
+    public fun update(c: ContactoModel): Boolean {
+        // Abrid BD en modo escritura
+        val con = Aplicacion.llave.writableDatabase
+        val values = c.toContentValues()
+        var filasAfectadas = 0
+        // Busca en todos los correos menos en el del usuario que estoy actualizando
+        val q = "select id from ${Aplicacion.TABLA} where email=? AND id <> ?"
+        // Intento mover el curso a la primera y si no puede es que la consulta no ha devuelto nada
+        val cursor = con.rawQuery(q, arrayOf(c.email, c.id.toString()))
+        val existeEmal = cursor.moveToFirst()
+        cursor.close()
+        if (!existeEmal) {
+            filasAfectadas = con.update(Aplicacion.TABLA, values, "id=?", arrayOf(c.id.toString()))
+        }
+        con.close()
+        return filasAfectadas > 0
+    }
+
+    public fun borrarTodo() {
+        val con = Aplicacion.llave.writableDatabase
+        con.execSQL("delete from ${Aplicacion.TABLA}")
+        con.close()
+    }
+
     // Función de extensión: funciones que permiten darle funcionalidad extra a una clase sin saber su código
     private fun ContactoModel.toContentValues(): ContentValues {
         return ContentValues().apply {

@@ -19,6 +19,8 @@ class AddActivity : AppCompatActivity() {
     private var imagen = ""
     private var id = -1
 
+    private var isUpdate = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,7 +33,33 @@ class AddActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        recogerContactos()
         setListeners()
+
+        if (isUpdate) {
+            binding.etTitle2.text = "Editar Contacto"
+            binding.btn2Enviar.text = "EDITAR"
+        }
+    }
+
+    private fun recogerContactos() {
+        val datos = intent.extras
+        if (datos != null) {
+            val c = datos.getSerializable("CONTACTO") as ContactoModel
+            isUpdate = true
+            nombre = c.nombre
+            apellidos = c.apellidos
+            imagen = c.imagen
+            id = c.id
+            email = c.email
+            pintarDatos()
+        }
+    }
+
+    private fun pintarDatos() {
+        binding.etNombre.setText(nombre)
+        binding.etApellidos.setText(apellidos)
+        binding.et2Email.setText(email)
     }
 
     private fun setListeners() {
@@ -60,13 +88,28 @@ class AddActivity : AppCompatActivity() {
             ) + apellidos.substring(0, 2)).uppercase()
             Log.d("INFOimagen-------------------------------------", imagen)
             val c = ContactoModel(id, nombre, apellidos, email, imagen)
-            if (CrudContactos().create(c) != -1L) {
-                Toast.makeText(this, "Se ha añadido un registro a la agenda", Toast.LENGTH_SHORT)
-                    .show()
-                finish()
+            if (!isUpdate) {
+                if (CrudContactos().create(c) != -1L) {
+                    Toast.makeText(
+                        this,
+                        "Se ha añadido un registro a la agenda",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    finish()
+                } else {
+                    binding.et2Email.error = "ERROR: Email duplicado"
+                }
             } else {
-                binding.et2Email.error = "ERROR: Email duplicado"
+                if (CrudContactos().update(c)) {
+                    Toast.makeText(this, "Registro editado correctamente", Toast.LENGTH_SHORT)
+                        .show()
+                    finish()
+                } else {
+                    Toast.makeText(this, "ERROR: Email duplicado", Toast.LENGTH_SHORT).show()
+                }
             }
+
         }
     }
 
