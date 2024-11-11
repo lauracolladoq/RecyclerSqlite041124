@@ -7,17 +7,18 @@ import com.example.recyclersqlite041124.R
 import com.example.recyclersqlite041124.models.ContactoModel
 
 class ContactoAdapter(
-    var lista: MutableList<ContactoModel>
+    var lista: MutableList<ContactoModel>,
+    private val borrarContacto: (Int) -> Unit,
 ) : RecyclerView.Adapter<ContactoViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactoViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.contacto_layout, parent, false)
         return ContactoViewHolder(v)
     }
-    
+
     override fun getItemCount() = lista.size
 
     override fun onBindViewHolder(holder: ContactoViewHolder, position: Int) {
-        holder.render(lista[position])
+        holder.render(lista[position], borrarContacto)
     }
 }
 

@@ -2,14 +2,23 @@ package com.example.recyclersqlite041124
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.recyclersqlite041124.adapters.ContactoAdapter
 import com.example.recyclersqlite041124.databinding.ActivityMainBinding
+import com.example.recyclersqlite041124.models.ContactoModel
+import com.example.recyclersqlite041124.providers.db.CrudContactos
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    var lista = mutableListOf<ContactoModel>()
+    private lateinit var adapter: ContactoAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -21,11 +30,49 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         setListeners()
+        setRecycler()
+    }
+
+    private fun traerRegistros() {
+        lista = CrudContactos().read()
+        if (lista.size > 0) {
+            binding.ivContactos.visibility = View.INVISIBLE
+        } else {
+            binding.ivContactos.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setRecycler() {
+        val layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = layoutManager
+        traerRegistros()
+        //adapter = ContactoAdapter(lista)
+        adapter = ContactoAdapter(lista, { position -> borrarContacto(position) })
+        binding.recyclerView.adapter = adapter
+    }
+
+    private fun borrarContacto(p: Int) {
+        val id = lista[p].id
+        // Eliminar de la lista mutable
+        lista.removeAt(p)
+        // Eliminar de la BD
+        // Devuelve true si lo puede borrar y false si no
+        if (CrudContactos().borrar(id)) {
+            adapter.notifyItemRemoved(p)
+        } else {
+            Toast.makeText(this, "No se eliminó el registro", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setListeners() {
         binding.fabAdd.setOnClickListener {
             startActivity(Intent(this, AddActivity::class.java))
         }
+    }
+
+    // Para volver a cargar la vista al añadir un registro
+    override fun onRestart() {
+        super.onRestart()
+        setRecycler()
     }
 }

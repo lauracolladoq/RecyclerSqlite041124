@@ -1,6 +1,7 @@
 package com.example.recyclersqlite041124
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -53,10 +54,11 @@ class AddActivity : AppCompatActivity() {
 
     private fun guardarRegistro() {
         if (datosCorrectos()) {
-            imagen = "https://dummyimage.com/200x200/000/fff&text=" + (nombre.substring(
+            imagen = "https://dummyimage.com/200x200/000000/fff&text=" + (nombre.substring(
                 0,
                 1
-            ) + (apellidos.substring(0, 2)).uppercase())
+            ) + apellidos.substring(0, 2)).uppercase()
+            Log.d("INFOimagen-------------------------------------", imagen)
             val c = ContactoModel(id, nombre, apellidos, email, imagen)
             if (CrudContactos().create(c) != -1L) {
                 Toast.makeText(this, "Se ha añadido un registro a la agenda", Toast.LENGTH_SHORT)
@@ -78,11 +80,11 @@ class AddActivity : AppCompatActivity() {
             return false
         }
         if (apellidos.length < 5) {
-            binding.etNombre.error = "El campo apellidos debe tener al menos 5 caracteres"
+            binding.etApellidos.error = "El campo apellidos debe tener al menos 5 caracteres"
             return false
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.etNombre.error = "El campo email debe tener el formato correcto"
+            binding.et2Email.error = "El campo email debe tener el formato correcto"
             return false
         }
         return true

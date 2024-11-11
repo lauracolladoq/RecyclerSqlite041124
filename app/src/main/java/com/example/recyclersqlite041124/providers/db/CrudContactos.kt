@@ -39,13 +39,14 @@ class CrudContactos {
                 null,
                 null
             )
-            while(cursor.moveToNext()){
-                val contacto = ContactoModel(cursor.getInt(0),
+            while (cursor.moveToNext()) {
+                val contacto = ContactoModel(
+                    cursor.getInt(0),
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getString(3),
                     cursor.getString(4),
-                    )
+                )
                 lista.add(contacto)
             }
         } catch (ex: Exception) {
@@ -54,6 +55,13 @@ class CrudContactos {
             con.close()
         }
         return lista
+    }
+
+    public fun borrar(id: Int): Boolean {
+        val con = Aplicacion.llave.writableDatabase
+        val contactoBorrado = con.delete(Aplicacion.TABLA, "id=?", arrayOf(id.toString()))
+        con.close()
+        return contactoBorrado > 0
     }
 
     // Función de extensión: funciones que permiten darle funcionalidad extra a una clase sin saber su código
