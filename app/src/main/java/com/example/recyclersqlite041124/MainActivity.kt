@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         val i = Intent(this, AddActivity::class.java).apply {
             putExtra("CONTACTO", c)
         }
+
         startActivity(i)
     }
 
